@@ -6,7 +6,7 @@ public class Add {
 
     public static void main(String[] _args) {
 
-        final int size = 1_000_000;
+        final int size = 100_000_000;
 
         final float[] a = new float[size];
         final float[] b = new float[size];
@@ -18,12 +18,16 @@ public class Add {
 
         final float[] sum = new float[size];
 
-        try (AutoStopWatch sw = new AutoStopWatch("withKernel")) {
-            withKernel(size, a, b, sum);
+        for (int i = 0 ; i < 10; i++) {
+            try (AutoStopWatch sw = new AutoStopWatch("withKernel")) {
+                withKernel(size, a, b, sum);
+            }
         }
 
-        try (AutoStopWatch sw = new AutoStopWatch("withoutKernel")) {
-            withoutKernel(size, a, b, sum);
+        for (int i = 0 ; i < 10; i++) {
+            try (AutoStopWatch sw = new AutoStopWatch("withoutKernel")) {
+                withoutKernel(size, a, b, sum);
+            }
         }
     }
 
@@ -42,6 +46,7 @@ public class Add {
                 sum[gid] = a[gid] + b[gid];
             }
         };
+        kernel.setExecutionModeWithoutFallback(Kernel.EXECUTION_MODE.GPU);
 
         kernel.execute(Range.create(size));
 
